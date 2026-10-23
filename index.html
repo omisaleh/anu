@@ -31,7 +31,7 @@ const SIGNUP_URL = "https://tinyurl.com/2bk58yc2";
 </div>
 <script>
 document.getElementById("signupButton").addEventListener("click", function () {
-  window.location.href = SIGNUP_URL; // Opens in the same tab
+  window.open(SIGNUP_URL, "_blank", "noopener,noreferrer"); // Opens in a new tab
 });
 </script>
 </body>
