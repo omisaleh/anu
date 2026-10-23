@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Hello Megh</title>
+<style>
+  :root {
+    --bg: #fafaf8;
+    --fg: #141414;
+    --muted: #8a8a85;
+    box-sizing: border-box;
+    padding-top: env(safe-area-inset-top, 0px);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+    color-scheme: light;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #0e0e0f;
+      --fg: #f1f1ee;
+      --muted: #6f6f6a;
+      color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #0e0e0f;
+    --fg: #f1f1ee;
+    --muted: #6f6f6a;
+    color-scheme: dark;
+  }
+  *, *::before, *::after { box-sizing: border-box; }
+  html, body { height: 100%; margin: 0; }
+  body {
+    background: var(--bg);
+    color: var(--fg);
+    font-family: -apple-system, BlinkMacSystemFont, "Inter", "Segoe UI", Helvetica, Arial, sans-serif;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    transition: background-color .6s ease, color .6s ease;
+    -webkit-font-smoothing: antialiased;
+  }
+  main { padding: 0 24px; animation: rise 1.2s ease both; }
+  h1 {
+    margin: 0;
+    font-weight: 300;
+    font-size: clamp(2.5rem, 9vw, 5.5rem);
+    letter-spacing: -0.03em;
+  }
+  .note {
+    margin-top: 1.5rem;
+    font-size: .8rem;
+    letter-spacing: .18em;
+    text-transform: uppercase;
+    color: var(--muted);
+    transition: color .6s ease;
+  }
+  .note::before {
+    content: "";
+    display: inline-block;
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: currentColor;
+    margin-right: .7em;
+    vertical-align: middle;
+    animation: pulse 2.4s ease-in-out infinite;
+  }
+  footer {
+    position: fixed;
+    bottom: 0; left: 0; right: 0;
+    padding: 20px 24px calc(20px + env(safe-area-inset-bottom, 0px));
+    font-size: .72rem;
+    letter-spacing: .08em;
+    color: var(--muted);
+    opacity: .7;
+    transition: color .6s ease;
+  }
+  @keyframes rise { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+  @keyframes pulse { 0%, 100% { opacity: .25; } 50% { opacity: 1; } }
+  @media (prefers-reduced-motion: reduce) {
+    * { animation: none !important; transition: none !important; }
+  }
+</style>
+</head>
+<body>
+  <main>
+    <h1>Hello Megh</h1>
+    <p class="note">Under development</p>
+  </main>
+  <footer>Built by Bijoy</footer>
+</body>
+</html>
