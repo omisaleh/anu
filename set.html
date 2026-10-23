@@ -1,0 +1,155 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Redirect Settings</title>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, -apple-system, Segoe UI, sans-serif; }
+    body { margin: 0; min-height: 100vh; display: grid; place-items: center; background: #f4f6fa; color: #172033; }
+    main { width: min(92vw, 520px); box-sizing: border-box; background: white; padding: 28px; border-radius: 16px; box-shadow: 0 8px 32px #17203312; }
+    h1 { margin-top: 0; font-size: 1.55rem; }
+    p { line-height: 1.5; color: #596579; }
+    label { display: block; margin: 18px 0 7px; font-weight: 650; }
+    input { width: 100%; box-sizing: border-box; border: 1px solid #c8d0dd; border-radius: 9px; padding: 12px; font: inherit; }
+    button { border: 0; border-radius: 9px; padding: 12px 16px; font: inherit; font-weight: 650; cursor: pointer; }
+    .primary { background: #2159d6; color: white; width: 100%; margin-top: 14px; }
+    .secondary { background: #e9edf5; color: #172033; }
+    .row { display: flex; gap: 10px; margin-top: 12px; flex-wrap: wrap; }
+    #status { min-height: 1.5em; margin-top: 14px; font-weight: 600; overflow-wrap: anywhere; }
+    .hint { font-size: .92rem; }
+    [hidden] { display: none !important; }
+  </style>
+</head>
+<body>
+<main>
+  <h1>Redirect settings</h1>
+  <p>Sign in with your admin account to change where the signup button sends visitors.</p>
+
+  <section id="loginPanel">
+    <form id="loginForm">
+      <label for="email">Admin email</label>
+      <input id="email" type="email" autocomplete="username" required>
+      <label for="password">Password</label>
+      <input id="password" type="password" autocomplete="current-password" required>
+      <button class="primary" type="submit">Sign in</button>
+    </form>
+  </section>
+
+  <section id="settingsPanel" hidden>
+    <p>Current destination:</p>
+    <p id="currentUrl" class="hint">Loading…</p>
+    <form id="settingsForm">
+      <label for="targetUrl">New destination URL</label>
+      <input id="targetUrl" type="url" inputmode="url" placeholder="https://example.com/signup" required>
+      <button class="primary" type="submit">Save destination</button>
+    </form>
+    <div class="row">
+      <button class="secondary" id="testButton" type="button">Test redirect page</button>
+      <button class="secondary" id="logoutButton" type="button">Sign out</button>
+    </div>
+    <p class="hint">Use a full https:// URL. Saving changes the destination for everyone using /go.html.</p>
+  </section>
+
+  <div id="status" role="status" aria-live="polite"></div>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+  // STEP 1: Replace these two placeholders with your Supabase project URL and anon/public key.
+  const SUPABASE_URL = "https://krdkbmcnjhroxxlolior.supabase.co/rest/v1/";
+  const SUPABASE_ANON_KEY = "sb_publishable_7-Tcp9q16brUb84cHQMb0A_N8MSK8pY";
+  const supabaseReady = SUPABASE_URL.startsWith("https://") &&
+    !SUPABASE_URL.includes("PASTE_") && !SUPABASE_ANON_KEY.includes("PASTE_");
+
+  const statusEl = document.getElementById("status");
+  const loginPanel = document.getElementById("loginPanel");
+  const settingsPanel = document.getElementById("settingsPanel");
+  const loginForm = document.getElementById("loginForm");
+  const settingsForm = document.getElementById("settingsForm");
+  const currentUrl = document.getElementById("currentUrl");
+  const targetInput = document.getElementById("targetUrl");
+  let supabaseClient;
+
+  function say(message, isError = false) {
+    statusEl.textContent = message;
+    statusEl.style.color = isError ? "#b42318" : "#167044";
+  }
+  function validDestination(value) {
+    try {
+      const url = new URL(value);
+      return (url.protocol === "https:" || url.protocol === "http:") && url.hostname.includes(".");
+    } catch (_) { return false; }
+  }
+  function showSignedIn(isSignedIn) {
+    loginPanel.hidden = isSignedIn;
+    settingsPanel.hidden = !isSignedIn;
+  }
+  async function loadDestination() {
+    const { data, error } = await supabaseClient
+      .from("redirect_settings").select("target_url").eq("id", 1).single();
+    if (error) {
+      say("Could not load settings. Check the SQL setup and Supabase configuration. " + error.message, true);
+      return;
+    }
+    currentUrl.textContent = data.target_url;
+    targetInput.value = data.target_url;
+  }
+  async function checkSession() {
+    const { data } = await supabaseClient.auth.getSession();
+    showSignedIn(!!data.session);
+    if (data.session) await loadDestination();
+  }
+
+  if (!supabaseReady) {
+    say("Setup needed: edit set.html and replace the Supabase URL and anon-key placeholders.", true);
+    document.querySelectorAll("button, input").forEach(el => el.disabled = true);
+  } else {
+    supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    checkSession();
+    supabaseClient.auth.onAuthStateChange((_event, session) => {
+      showSignedIn(!!session);
+      if (session) loadDestination();
+    });
+  }
+
+  loginForm.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    if (!supabaseClient) return;
+    say("Signing in…");
+    const { error } = await supabaseClient.auth.signInWithPassword({
+      email: document.getElementById("email").value.trim(),
+      password: document.getElementById("password").value
+    });
+    if (error) say("Sign-in failed: " + error.message, true);
+    else { say("Signed in."); await loadDestination(); }
+  });
+
+  settingsForm.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    const value = targetInput.value.trim();
+    if (!validDestination(value)) {
+      say("Enter a valid full URL beginning with https:// (or http://).", true);
+      return;
+    }
+    say("Saving…");
+    const { error } = await supabaseClient.from("redirect_settings")
+      .update({ target_url: value, updated_at: new Date().toISOString() }).eq("id", 1);
+    if (error) say("Save failed: " + error.message, true);
+    else {
+      currentUrl.textContent = value;
+      say("Saved. Visitors using /go.html will now be sent to the new destination.");
+    }
+  });
+
+  document.getElementById("logoutButton").addEventListener("click", async () => {
+    const { error } = await supabaseClient.auth.signOut();
+    if (error) say("Sign-out failed: " + error.message, true);
+    else { showSignedIn(false); say("Signed out."); }
+  });
+  document.getElementById("testButton").addEventListener("click", () => {
+    window.open("/go.html", "_blank", "noopener,noreferrer");
+  });
+</script>
+</body>
+</html>
