@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Evenfall – Meet people nearby</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,800&family=Figtree:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#f6ece6;--ink:#2b1a14;--muted:#6f5a50;--brand:#5b3326;--brand2:#3c211a;--card:#fffaf7;--line:#d9c4b9;--accent:#e8a87c;--err:#a3281c;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#1d120e;--ink:#f6ece6;--muted:#c2ab9f;--brand:#e8a87c;--brand2:#f3c9a8;--card:#2a1a14;--line:#4a342b;--accent:#e8a87c;--err:#ff8a7a}}
+:root[data-theme="dark"]{--bg:#1d120e;--ink:#f6ece6;--muted:#c2ab9f;--brand:#e8a87c;--brand2:#f3c9a8;--card:#2a1a14;--line:#4a342b;--accent:#e8a87c;--err:#ff8a7a}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:400 1rem/1.5 Figtree,system-ui,sans-serif}
+.wrap{min-height:100vh;display:grid;grid-template-columns:1fr;max-width:1100px;margin:0 auto}
+.hero{position:relative;aspect-ratio:4/4.4;background:linear-gradient(160deg,#8a5a48,#3c211a);overflow:hidden}
+.hero img{width:100%;height:100%;object-fit:cover;display:block}
+.ph{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.75rem;color:#f6ece6;text-align:center;padding:1rem}
+.ph svg{width:38%;max-width:180px;opacity:.55}
+.ph p{margin:0;font-size:.9rem;opacity:.85;max-width:24ch}
+.photo-btn{position:absolute;right:.75rem;bottom:.75rem;background:rgba(0,0,0,.55);color:#fff;border:0;border-radius:99px;padding:.5rem .9rem;font:500 .85rem Figtree,sans-serif;cursor:pointer;backdrop-filter:blur(6px)}
+.brand{position:absolute;left:.75rem;top:calc(.75rem + env(safe-area-inset-top,0px));background:#111;color:#fff;font:800 1rem Fraunces,serif;padding:.4rem .8rem;letter-spacing:.01em}
+.panel{padding:1.25rem 1rem 2rem;display:flex;flex-direction:column;gap:1.1rem}
+h1{font:800 clamp(1.7rem,5vw,2.6rem)/1.1 Fraunces,serif;margin:0;color:var(--brand2)}
+.sub{margin:0;color:var(--muted)}
+.btn{display:block;width:100%;border:0;border-radius:99px;background:var(--brand);color:#fff;font:700 1.1rem Figtree,sans-serif;padding:1rem;cursor:pointer;transition:transform .12s}
+:root:not([data-theme="light"]) .btn{color:#2b1a14}
+.btn:active{transform:scale(.98)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.btn.ghost{background:transparent;color:var(--brand);border:2px solid var(--line)}
+.steps{list-style:none;margin:0;padding:.9rem;border:1.5px dashed var(--line);border-radius:12px;display:grid;gap:.5rem;background:var(--card)}
+.steps li{display:flex;gap:.7rem;align-items:center;padding:.55rem .7rem;border-radius:8px;font-weight:500;color:var(--muted)}
+.steps li b{width:1.7rem;height:1.7rem;border-radius:50%;display:grid;place-items:center;background:var(--line);color:var(--ink);font-size:.8rem;flex:none}
+.steps li.on{color:var(--ink);background:var(--bg)}
+.steps li.on b{background:var(--brand);color:#fff}
+.steps li.done b{background:#3d7a4e;color:#fff}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:1.1rem;display:grid;gap:.9rem}
+.card h2{margin:0;font:700 1.25rem Fraunces,serif}
+.opts{display:grid;gap:.5rem}
+.opt{text-align:left;border:1.5px solid var(--line);background:var(--bg);color:var(--ink);border-radius:10px;padding:.8rem .9rem;font:500 1rem Figtree,sans-serif;cursor:pointer}
+.opt:hover{border-color:var(--brand)}
+.opt[aria-pressed="true"]{border-color:var(--brand);background:var(--brand);color:#fff}
+:root:not([data-theme="light"]) .opt[aria-pressed="true"]{color:#2b1a14}
+label{display:grid;gap:.3rem;font-weight:500;font-size:.95rem}
+input[type=text],input[type=email],input[type=number]{font:inherit;padding:.8rem;border:1.5px solid var(--line);border-radius:10px;background:var(--bg);color:var(--ink);width:100%}
+input:focus-visible,button:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.err{color:var(--err);font-size:.88rem;min-height:1.2em;margin:0}
+.bar{height:6px;background:var(--line);border-radius:9px;overflow:hidden}
+.bar i{display:block;height:100%;background:var(--brand);width:0;transition:width .3s}
+.hidden{display:none!important}
+.fine{font-size:.78rem;color:var(--muted);margin:0}
+@media (min-width:860px){
+.wrap{grid-template-columns:1.05fr 1fr;align-items:stretch}
+.hero{aspect-ratio:auto;min-height:100vh}
+.panel{justify-content:center;padding:3rem 2.5rem}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <section class="hero" aria-label="Featured photo">
+    <div class="ph" id="ph">
+      <svg viewBox="0 0 64 64" fill="currentColor" aria-hidden="true"><circle cx="32" cy="22" r="12"/><path d="M8 60c0-13 10-22 24-22s24 9 24 22z"/></svg>
+      <p>Add a photo you have the rights to use</p>
+    </div>
+    <img id="photo" class="hidden" alt="Hero photo">
+    <div class="brand">Evenfall</div>
+    <button class="photo-btn" id="pickBtn" type="button">Add photo</button>
+    <input type="file" id="file" accept="image/*" hidden>
+  </section>
+
+  <main class="panel">
+    <div id="intro" class="panel" style="padding:0">
+      <h1>Meet people near you</h1>
+      <p class="sub">Answer 3 quick questions, then add your name and email. That's it.</p>
+      <button class="btn" id="start" type="button">Free sign up</button>
+    </div>
+
+    <ol class="steps" id="steps" aria-label="Sign-up steps">
+      <li data-s="1" class="on"><b>1</b>Answer 3 questions</li>
+      <li data-s="2"><b>2</b>Name and email</li>
+      <li data-s="3"><b>3</b>Confirm you're 40 or older</li>
+    </ol>
+
+    <div class="bar hidden" id="bar" role="progressbar" aria-valuemin="0" aria-valuemax="100"><i id="barFill"></i></div>
+
+    <section class="card hidden" id="q" aria-live="polite">
+      <h2 id="qTitle"></h2>
+      <div class="opts" id="qOpts"></div>
+    </section>
+
+    <form class="card hidden" id="details" novalidate>
+      <h2>Your details</h2>
+      <label>First name<input type="text" id="name" autocomplete="given-name"></label>
+      <label>Email<input type="email" id="email" autocomplete="email" inputmode="email"></label>
+      <p class="err" id="e1" role="alert"></p>
+      <button class="btn" type="submit">Continue</button>
+    </form>
+
+    <form class="card hidden" id="age" novalidate>
+      <h2>Confirm your age</h2>
+      <p class="sub">This community is for people aged 40 and over.</p>
+      <label>Your age<input type="number" id="ageIn" min="1" max="120" inputmode="numeric"></label>
+      <p class="err" id="e2" role="alert"></p>
+      <button class="btn" type="submit">Finish sign up</button>
+    </form>
+
+    <section class="card hidden" id="done" aria-live="polite">
+      <h2 id="doneT"></h2>
+      <p class="sub">We'd send a confirmation link to <b id="doneE"></b>. This demo doesn't store or send anything.</p>
+      <button class="btn ghost" id="again" type="button">Start over</button>
+    </section>
+
+    <p class="fine">By signing up you agree to the terms and privacy policy. You must be 40 or older.</p>
+  </main>
+</div>
+
+<script>
+(function(){
+  var Q=[
+    {t:"What are you looking for?",o:["Friendship","A relationship","Casual dates","Not sure yet"]},
+    {t:"How far will you travel?",o:["Under 10 km","Up to 30 km","Anywhere in my city","I'm flexible"]},
+    {t:"What's your ideal first date?",o:["Coffee and a walk","Dinner","Something active","A phone call first"]}
+  ];
+  var $=function(id){return document.getElementById(id)};
+  var i=0,ans=[],user={};
+  function stepUI(n){
+    document.querySelectorAll('#steps li').forEach(function(li){
+      var s=+li.dataset.s;
+      li.classList.toggle('on',s===n);
+      li.classList.toggle('done',s<n);
+    });
+  }
+  function show(id){['intro','q','details','age','done'].forEach(function(x){$(x).classList.toggle('hidden',x!==id)});}
+  function setBar(p){$('bar').classList.remove('hidden');$('barFill').style.width=p+'%';$('bar').setAttribute('aria-valuenow',p)}
+  function renderQ(){
+    var q=Q[i];$('qTitle').textContent=q.t;
+    var box=$('qOpts');box.textContent='';
+    q.o.forEach(function(o){
+      var b=document.createElement('button');b.type='button';b.className='opt';b.textContent=o;b.setAttribute('aria-pressed','false');
+      b.onclick=function(){
+        b.setAttribute('aria-pressed','true');ans[i]=o;
+        setTimeout(function(){i++;if(i<Q.length){renderQ();}else{stepUI(2);setBar(66);show('details');$('name').focus();}},180);
+      };
+      box.appendChild(b);
+    });
+    setBar(Math.round(i/3*33));
+  }
+  $('start').onclick=function(){i=0;ans=[];stepUI(1);show('q');renderQ();$('q').scrollIntoView({behavior:'smooth',block:'start'})};
+  $('details').onsubmit=function(e){
+    e.preventDefault();
+    var n=$('name').value.trim(),m=$('email').value.trim();
+    if(n.length<2){$('e1').textContent='Enter your first name.';return}
+    if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(m)){$('e1').textContent='Enter a valid email, like name@example.com.';return}
+    $('e1').textContent='';user={n:n,m:m};stepUI(3);setBar(90);show('age');$('ageIn').focus();
+  };
+  $('age').onsubmit=function(e){
+    e.preventDefault();
+    var a=parseInt($('ageIn').value,10);
+    if(!a){$('e2').textContent='Enter your age.';return}
+    if(a<40){$('e2').textContent='You must be 40 or older to join.';return}
+    $('e2').textContent='';setBar(100);
+    document.querySelectorAll('#steps li').forEach(function(li){li.classList.remove('on');li.classList.add('done')});
+    $('doneT').textContent='Welcome, '+user.n+'!';$('doneE').textContent=user.m;show('done');
+  };
+  $('again').onclick=function(){
+    $('details').reset();$('age').reset();$('bar').classList.add('hidden');stepUI(1);show('intro');
+  };
+  $('pickBtn').onclick=function(){$('file').click()};
+  $('file').onchange=function(){
+    var f=this.files&&this.files[0];if(!f)return;
+    var r=new FileReader();
+    r.onload=function(){$('photo').src=r.result;$('photo').classList.remove('hidden');$('ph').classList.add('hidden')};
+    r.readAsDataURL(f);
+  };
+})();
+</script>
+</body>
+</html>
