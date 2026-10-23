@@ -1,53 +1,42 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
+  <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Redirecting…</title>
-  <meta name="robots" content="noindex">
-  <style>
-    body { font-family: system-ui, sans-serif; margin: 0; min-height: 100vh; display: grid; place-items: center; padding: 24px; box-sizing: border-box; color: #172033; background: #f7f8fb; }
-    main { max-width: 520px; text-align: center; }
-    a { overflow-wrap: anywhere; }
-  </style>
+  <title></title>
 </head>
 <body>
-<main>
-  <h1>Redirecting…</h1>
-  <p id="message">Please wait while we send you to the signup page.</p>
-  <p id="fallback" hidden>If you are not redirected, <a id="manualLink" href="#">click here</a>.</p>
-</main>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script>
-  // Use the same project URL and anon/public key as set.html.
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script>
   const SUPABASE_URL = "https://krdkbmcnjhroxxlolior.supabase.co";
   const SUPABASE_ANON_KEY = "sb_publishable_7-Tcp9q16brUb84cHQMb0A_N8MSK8pY";
 
-  async function redirectVisitor() {
-    const message = document.getElementById("message");
-    try {
-      if (SUPABASE_URL.includes("PASTE_") || SUPABASE_ANON_KEY.includes("PASTE_")) {
-        throw new Error("The redirect page has not been configured yet.");
-      }
-      const client = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-      const { data, error } = await client.from("redirect_settings")
-        .select("target_url").eq("id", 1).single();
-      if (error) throw error;
+    async function redirect() {
+      try {
+        const supabase = window.supabase.createClient(
+          SUPABASE_URL,
+          SUPABASE_ANON_KEY
+        );
 
-      const destination = new URL(data.target_url);
-      if (!["https:", "http:"].includes(destination.protocol)) {
-        throw new Error("The saved destination is invalid.");
+        const { data, error } = await supabase
+          .from("redirect_settings")
+          .select("target_url")
+          .eq("id", 1)
+          .single();
+
+        if (error || !data?.target_url) return;
+
+        const url = new URL(data.target_url);
+
+        if (url.protocol !== "https:" && url.protocol !== "http:") return;
+
+        window.location.replace(url.href);
+      } catch (_) {
+        // Keep the page blank if the redirect cannot be completed.
       }
-      document.getElementById("manualLink").href = destination.href;
-      document.getElementById("fallback").hidden = false;
-      message.textContent = "Redirecting you now…";
-      window.location.replace(destination.href);
-    } catch (error) {
-      message.textContent = "Sorry, the redirect could not be completed. Please try again later.";
-      console.error("Redirect error:", error);
     }
-  }
-  redirectVisitor();
-</script>
+
+    redirect();
+  </script>
 </body>
 </html>
